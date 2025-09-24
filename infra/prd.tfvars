@@ -37,7 +37,7 @@ db_name     = "supabase"
 db_username = "supabase_admin"
 db_password = ""                   ## Please leave empty to auto generate by using random and storee in secret manager
 
-db_engine_version         = "14.10"
+db_engine_version         = "17.6"
 db_instance_class         = "db.t3.micro"
 db_allocated_storage      = 20
 db_max_allocated_storage  = 100
