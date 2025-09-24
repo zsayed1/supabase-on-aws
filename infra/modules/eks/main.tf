@@ -104,3 +104,67 @@ resource "aws_eks_node_group" "this" {
     aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly
   ]
 }
+
+
+## IRSA Setup
+data "aws_eks_cluster" "this" {
+  name = aws_eks_cluster.this.name
+}
+
+# Fetch the EKS OIDC issuer URL
+locals {
+  eks_oidc_url = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
+}
+
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  url             = local.eks_oidc_url
+  client_id_list  = ["sts.amazonaws.com"]
+
+  # Hardcode common Amazon root CA thumbprint
+  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+}
+
+# IAM policy to allow reading Supabase secrets
+resource "aws_iam_policy" "supabase_secrets" {
+  name   = "supabase-secrets-policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["secretsmanager:GetSecretValue"],
+        Resource = var.supabase_secret_arn
+      }
+    ]
+  })
+}
+
+# IAM role for Supabase ServiceAccount
+resource "aws_iam_role" "supabase_secrets_irsa" {
+  name = "supabase-secrets-irsa-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" : "system:serviceaccount:supabase:supabase-secrets"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Attach the policy to the role
+resource "aws_iam_role_policy_attachment" "supabase_secrets_attach" {
+  role       = aws_iam_role.supabase_secrets_irsa.name
+  policy_arn = aws_iam_policy.supabase_secrets.arn
+}

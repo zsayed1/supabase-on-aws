@@ -13,3 +13,8 @@ output "cluster_certificate_authority_data" {
 output "node_group_name" {
   value = aws_eks_node_group.this.node_group_name
 }
+
+output "supabase_secrets_irsa_role_arn" {
+  description = "IAM role ARN for Supabase secrets access"
+  value       = aws_iam_role.supabase_secrets_irsa.arn
+}
