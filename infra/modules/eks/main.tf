@@ -29,13 +29,22 @@ resource "aws_eks_cluster" "this" {
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
+    # Keep worker nodes in private subnets
     subnet_ids              = var.private_subnet_ids
-    endpoint_private_access = true
-    endpoint_public_access  = false
+
+    # ✅ Make API public; disable private
+    endpoint_public_access  = true
+    endpoint_private_access = false
+
+    # ✅ Restrict who can hit the public API
+    public_access_cidrs     = var.eks_api_allowed_cidrs
   }
 
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy]
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy
+  ]
 }
+
 
 ##########################
 # IAM Role for Worker Nodes

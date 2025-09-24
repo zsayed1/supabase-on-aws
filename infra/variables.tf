@@ -72,6 +72,12 @@ variable "eks_instance_type" {
   default     = "t3.medium"
 }
 
+variable "eks_api_allowed_cidrs" {
+  description = "CIDRs allowed to access the EKS public endpoint"
+  type        = list(string)
+  default     = ["0.0.0.0/0"] # override in terraform.tfvars
+}
+
 ############################
 # RDS Variables
 ############################

@@ -27,3 +27,10 @@ variable "instance_type" {
   description = "EC2 instance type for worker nodes"
   type        = string
 }
+
+variable "eks_api_allowed_cidrs" {
+  description = "CIDR blocks allowed to access the EKS public API endpoint"
+  type        = list(string)
+  default     = ["0.0.0.0/0"] # ⚠️ open; override in tfvars
+}
+
