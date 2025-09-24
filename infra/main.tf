@@ -69,3 +69,16 @@ module "supabase_storage" {
     Environment = "demo"
   }
 }
+
+module "supabase_secrets" {
+  source = "./modules/secrets"
+
+  db_name     = module.rds.db_name
+  db_username = module.rds.db_username
+  db_password = module.rds.db_password
+  db_host     = module.rds.db_endpoint
+  db_port     = 5432
+
+  s3_bucket   = module.supabase_storage.bucket_name
+  aws_region  = var.aws_region
+}

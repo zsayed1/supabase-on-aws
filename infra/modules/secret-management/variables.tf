@@ -1,48 +1,32 @@
-variable "supabase_jwt_secret" {
-  description = "JWT secret used by Supabase auth (maps to JWT_SECRET)"
-  type        = string
-  sensitive   = true
+resource "random_password" "jwt_secret" {
+  length  = 32
+  special = false
 }
 
-variable "supabase_service_role_key" {
-  description = "Supabase service role key (maps to SERVICE_ROLE_KEY)"
-  type        = string
-  sensitive   = true
+resource "random_password" "service_role" {
+  length  = 40
+  special = false
 }
 
-variable "supabase_anon_key" {
-  description = "Supabase anon key (maps to ANON_KEY)"
-  type        = string
-  sensitive   = true
+resource "random_password" "anon_key" {
+  length  = 40
+  special = false
 }
 
-variable "supabase_s3_bucket" {
-  description = "Supabase S3 bucket name (maps to STORAGE_S3_BUCKET)"
-  type        = string
-}
+resource "aws_secretsmanager_secret_version" "supabase" {
+  secret_id     = aws_secretsmanager_secret.supabase.id
+  secret_string = jsonencode({
+    JWT_SECRET       = random_password.jwt_secret.result
+    SERVICE_ROLE_KEY = random_password.service_role.result
+    ANON_KEY         = random_password.anon_key.result
 
-variable "supabase_s3_region" {
-  description = "Supabase S3 region (maps to STORAGE_S3_REGION)"
-  type        = string
-}
-
-# Optional SMTP creds for GoTrue
-variable "supabase_smtp_user" {
-  description = "SMTP user (maps to GOTRUE_SMTP_USER)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "supabase_smtp_pass" {
-  description = "SMTP password (maps to GOTRUE_SMTP_PASS)"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "tags" {
-  description = "Tags to apply to all Supabase secrets"
-  type        = map(string)
-  default     = {}
+    DB_HOST     = module.rds.db_endpoint
+    DB_PORT     = "5432"
+    DB_NAME     = var.db_name
+    DB_USER     = var.db_username
+    DB_PASSWORD = random_password.db.result
+    STORAGE_BACKEND   = "s3"
+    STORAGE_S3_BUCKET = module.supabase_storage.bucket_name
+    STORAGE_S3_REGION = var.aws_region
+  })
 }
