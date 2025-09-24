@@ -32,8 +32,3 @@ output "db_password" {
   value       = local.db_password_effective
   sensitive   = true
 }
-
-output "db_endpoint" {
-  description = "The connection endpoint for the RDS instance"
-  value       = aws_db_instance.postgres.address
-}
