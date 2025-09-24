@@ -17,4 +17,3 @@ variable "private_subnets" {
   description = "Map of private subnet CIDRs keyed by AZ"
   type        = map(string)
 }
-
