@@ -1,48 +1,35 @@
-variable "supabase_jwt_secret" {
-  description = "JWT secret used by Supabase auth (maps to JWT_SECRET)"
-  type        = string
-  sensitive   = true
-}
-
-variable "supabase_service_role_key" {
-  description = "Supabase service role key (maps to SERVICE_ROLE_KEY)"
-  type        = string
-  sensitive   = true
-}
-
-variable "supabase_anon_key" {
-  description = "Supabase anon key (maps to ANON_KEY)"
-  type        = string
-  sensitive   = true
-}
-
-variable "supabase_s3_bucket" {
-  description = "Supabase S3 bucket name (maps to STORAGE_S3_BUCKET)"
+variable "db_name" {
+  description = "Name of the Postgres database"
   type        = string
 }
 
-variable "supabase_s3_region" {
-  description = "Supabase S3 region (maps to STORAGE_S3_REGION)"
+variable "db_username" {
+  description = "Username for the Postgres database"
   type        = string
 }
 
-# Optional SMTP creds for GoTrue
-variable "supabase_smtp_user" {
-  description = "SMTP user (maps to GOTRUE_SMTP_USER)"
+variable "db_password" {
+  description = "Generated or provided DB password"
   type        = string
-  sensitive   = true
-  default     = ""
 }
 
-variable "supabase_smtp_pass" {
-  description = "SMTP password (maps to GOTRUE_SMTP_PASS)"
+variable "db_host" {
+  description = "RDS endpoint for Postgres"
   type        = string
-  sensitive   = true
-  default     = ""
 }
 
-variable "tags" {
-  description = "Tags to apply to all Supabase secrets"
-  type        = map(string)
-  default     = {}
+variable "db_port" {
+  description = "Port for Postgres"
+  type        = number
+  default     = 5432
+}
+
+variable "s3_bucket" {
+  description = "Supabase S3 bucket name"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for the deployment"
+  type        = string
 }
