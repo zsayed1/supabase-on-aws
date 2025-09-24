@@ -17,8 +17,9 @@ module "eks" {
   max_capacity     = var.eks_max_capacity
   min_capacity     = var.eks_min_capacity
   instance_type    = var.eks_instance_type
-
+  
   eks_api_allowed_cidrs = var.eks_api_allowed_cidrs
+  supabase_secret_arn   = module.supabase_secrets.supabase_secret_arn
 }
 
 
