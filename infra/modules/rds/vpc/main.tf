@@ -69,7 +69,7 @@ resource "aws_db_instance" "postgres" {
   engine                     = "postgres"
   engine_version             = var.engine_version
   instance_class             = var.instance_class
-  deletion_protection         = var.deletion_protection
+  deletion_protection        = var.deletion_protection
 
   db_name                    = var.db_name
   username                   = var.db_username
@@ -94,7 +94,7 @@ resource "aws_db_instance" "postgres" {
   maintenance_window         = var.maintenance_window
   auto_minor_version_upgrade = true
   copy_tags_to_snapshot      = true
-  deletion_protection        = var.deletion_protection
+  # deletion_protection        = var.deletion_protection
 
   # Monitoring
   performance_insights_enabled = var.performance_insights_enabled
