@@ -17,3 +17,9 @@ variable "private_subnets" {
   description = "Map of private subnet CIDRs keyed by AZ"
   type        = map(string)
 }
+
+variable "aws_region" {
+  description = "AWS region to deploy into"
+  type        = string
+  default     = "us-west-1"
+}
