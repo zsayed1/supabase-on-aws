@@ -15,3 +15,25 @@ output "db_secret_arn" {
   value     = try(aws_secretsmanager_secret.creds[0].arn, null)
   sensitive = true
 }
+
+output "db_name" {
+  description = "The name of the database"
+  value       = aws_db_instance.postgres.db_name
+}
+
+output "db_username" {
+  description = "The master username for the database"
+  value       = aws_db_instance.postgres.username
+  sensitive   = true
+}
+
+output "db_password" {
+  description = "The master password for the database (from random_password)"
+  value       = local.db_password_effective
+  sensitive   = true
+}
+
+output "db_endpoint" {
+  description = "The connection endpoint for the RDS instance"
+  value       = aws_db_instance.postgres.address
+}

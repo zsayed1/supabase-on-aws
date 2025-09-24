@@ -71,7 +71,7 @@ module "supabase_storage" {
 }
 
 module "supabase_secrets" {
-  source = "./modules/secret-management"
+  source = "./modules/secrets"
 
   db_name     = module.rds.db_name
   db_username = module.rds.db_username
