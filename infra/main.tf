@@ -55,10 +55,10 @@ module "supabase_storage" {
   versioning_enabled      = var.storage_versioning_enabled
   force_destroy           = var.storage_force_destroy
   kms_key_id              = var.storage_kms_key_id
-  cors_allowed_origins    = var.storage_cors_allowed_origins
-  cors_allowed_methods    = var.storage_cors_allowed_methods
-  cors_allowed_headers    = var.storage_cors_allowed_headers
-  cors_expose_headers     = var.storage_cors_expose_headers
+#   cors_allowed_origins    = var.storage_cors_allowed_origins
+#   cors_allowed_methods    = var.storage_cors_allowed_methods
+#   cors_allowed_headers    = var.storage_cors_allowed_headers
+#   cors_expose_headers     = var.storage_cors_expose_headers
   lifecycle_expiration_days = var.storage_lifecycle_expiration_days
 
   tags = {
