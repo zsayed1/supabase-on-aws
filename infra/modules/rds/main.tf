@@ -30,13 +30,14 @@ resource "aws_security_group" "db" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.vpc_cidr]   # ✅ restrict to VPC only
   }
 
   tags = {
     Name = "rds-postgres-sg"
   }
 }
+
 
 # Subnet group in private subnets
 resource "aws_db_subnet_group" "this" {
