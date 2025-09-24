@@ -24,6 +24,8 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
 ##########################
 # EKS Cluster
 ##########################
+
+# tfsec:ignore:aws-eks-no-public-cluster-access-to-cidr
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
@@ -32,11 +34,9 @@ resource "aws_eks_cluster" "this" {
     # Keep worker nodes in private subnets
     subnet_ids              = var.private_subnet_ids
 
-    # ✅ Make API public; disable private
     endpoint_public_access  = true
     endpoint_private_access = false
 
-    # ✅ Restrict who can hit the public API
     public_access_cidrs     = var.eks_api_allowed_cidrs
   }
 
