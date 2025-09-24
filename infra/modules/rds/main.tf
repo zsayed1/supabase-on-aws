@@ -10,7 +10,7 @@ locals {
 resource "random_password" "db" {
   length           = 24
   special          = true
-  override_characters = "!@#%^*-_=+"
+  override_special = "!@#%^*-_=+"
 }
 
 # Security Group for DB: allow Postgres only from allowed CIDRs

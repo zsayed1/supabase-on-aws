@@ -113,3 +113,9 @@ variable "secret_name" {
   type        = string
   default     = "rds-postgres-credentials"
 }
+
+variable "db_port" {
+  description = "PostgreSQL port"
+  type        = number
+  default     = 5432
+}
