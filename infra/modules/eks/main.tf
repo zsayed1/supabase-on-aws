@@ -1,16 +1,6 @@
-# EKS Cluster
-resource "aws_eks_cluster" "this" {
-  name     = var.cluster_name
-  role_arn = aws_iam_role.eks_cluster.arn
-
-  vpc_config {
-    subnet_ids = concat(var.private_subnet_ids, var.public_subnet_ids)
-  }
-
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy]
-}
-
+##########################
 # IAM Role for EKS Cluster
+##########################
 resource "aws_iam_role" "eks_cluster" {
   name = "${var.cluster_name}-eks-cluster-role"
 
@@ -31,25 +21,25 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
   role       = aws_iam_role.eks_cluster.name
 }
 
-# EKS Node Group
-resource "aws_eks_node_group" "this" {
-  cluster_name    = aws_eks_cluster.this.name
-  node_group_name = "${var.cluster_name}-node-group"
-  node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = var.private_subnet_ids
+##########################
+# EKS Cluster
+##########################
+resource "aws_eks_cluster" "this" {
+  name     = var.cluster_name
+  role_arn = aws_iam_role.eks_cluster.arn
 
-  scaling_config {
-    desired_size = var.desired_capacity
-    max_size     = var.max_capacity
-    min_size     = var.min_capacity
+  vpc_config {
+    subnet_ids              = var.private_subnet_ids
+    endpoint_private_access = true
+    endpoint_public_access  = false
   }
 
-  instance_types = [var.instance_type]
-
-  depends_on = [aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy]
+  depends_on = [aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy]
 }
 
+##########################
 # IAM Role for Worker Nodes
+##########################
 resource "aws_iam_role" "eks_nodes" {
   name = "${var.cluster_name}-eks-nodes-role"
 
@@ -78,4 +68,28 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEKS_CNI_Policy" {
 resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryReadOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_nodes.name
+}
+
+##########################
+# Node Group
+##########################
+resource "aws_eks_node_group" "this" {
+  cluster_name    = aws_eks_cluster.this.name
+  node_group_name = "${var.cluster_name}-node-group"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = var.private_subnet_ids
+
+  scaling_config {
+    desired_size = var.desired_capacity
+    max_size     = var.max_capacity
+    min_size     = var.min_capacity
+  }
+
+  instance_types = [var.instance_type]
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly
+  ]
 }
