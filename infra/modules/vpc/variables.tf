@@ -18,27 +18,3 @@ variable "private_subnets" {
   type        = map(string)
 }
 
-variable "eks_cluster_name" {
-  description = "Name of the EKS cluster"
-  type        = string
-}
-
-variable "eks_desired_capacity" {
-  description = "Desired worker node count"
-  type        = number
-}
-
-variable "eks_min_capacity" {
-  description = "Minimum worker node count"
-  type        = number
-}
-
-variable "eks_max_capacity" {
-  description = "Maximum worker node count"
-  type        = number
-}
-
-variable "eks_instance_type" {
-  description = "EC2 instance type for worker nodes"
-  type        = string
-}
