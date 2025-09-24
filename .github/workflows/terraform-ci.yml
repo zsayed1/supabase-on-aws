@@ -36,3 +36,17 @@ jobs:
       - name: Run TFLint
         working-directory: infra
         run: tflint --init && tflint
+
+  security:
+    name: Terraform Security Scan (tfsec)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working-directory: infra
+          additional_args: --soft-fail=false
