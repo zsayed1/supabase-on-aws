@@ -34,3 +34,7 @@ variable "eks_api_allowed_cidrs" {
   default     = ["0.0.0.0/0"] # ⚠️ open; override in tfvars
 }
 
+variable "supabase_secret_arn" {
+  description = "ARN of the Supabase secret in Secrets Manager"
+  type        = string
+}
