@@ -111,24 +111,19 @@ data "aws_eks_cluster" "this" {
   name = aws_eks_cluster.this.name
 }
 
-resource "aws_iam_openid_connect_provider" "eks" {
-  url             = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.aws_eks_cluster.this.identity[0].oidc[0].issuer_thumbprint]
+# Fetch the EKS OIDC issuer URL
+locals {
+  eks_oidc_url = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
 
-resource "aws_iam_policy" "supabase_secrets" {
-  name   = "supabase-secrets-policy"
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect   = "Allow",
-        Action   = ["secretsmanager:GetSecretValue"],
-        Resource = var.supabase_secret_arn
-      }
-    ]
-  })
+# Thumbprint for AWS OIDC providers is always the same root CA
+# You can hardcode it or fetch dynamically
+resource "aws_iam_openid_connect_provider" "eks" {
+  url             = local.eks_oidc_url
+  client_id_list  = ["sts.amazonaws.com"]
+
+  # Hardcode common Amazon root CA thumbprint
+  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
 }
 
 
