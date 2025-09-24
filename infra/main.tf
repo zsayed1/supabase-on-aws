@@ -26,9 +26,9 @@ module "rds" {
   private_subnet_ids = module.vpc.private_subnet_ids
   vpc_cidr           = var.vpc_cidr
 
-  db_name     = var.db_name
-  db_username = var.db_username
-  db_password = var.db_password # can be empty to auto-generate
+  db_name            = var.db_name
+  db_username        = var.db_username
+  db_password        = var.db_password # can be empty to auto-generate
 
   engine_version        = var.db_engine_version
   instance_class        = var.db_instance_class
@@ -46,4 +46,23 @@ module "rds" {
   db_allowed_cidr_blocks    = var.db_allowed_cidr_blocks
   create_credentials_secret = var.db_create_credentials_secret
   secret_name               = var.db_secret_name
+}
+
+module "supabase_storage" {
+  source = "./modules/s3"
+
+  bucket_name             = var.storage_bucket_name
+  versioning_enabled      = var.storage_versioning_enabled
+  force_destroy           = var.storage_force_destroy
+  kms_key_id              = var.storage_kms_key_id
+  cors_allowed_origins    = var.storage_cors_allowed_origins
+  cors_allowed_methods    = var.storage_cors_allowed_methods
+  cors_allowed_headers    = var.storage_cors_allowed_headers
+  cors_expose_headers     = var.storage_cors_expose_headers
+  lifecycle_expiration_days = var.storage_lifecycle_expiration_days
+
+  tags = {
+    Project     = "supabase"
+    Environment = "demo"
+  }
 }
