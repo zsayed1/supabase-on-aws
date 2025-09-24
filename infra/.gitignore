@@ -1,0 +1,32 @@
+# Terraform working dirs
+**/.terraform/*
+**/.terraform*
+
+# State files (contain secrets)
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Local variable values (DON'T push)
+terraform.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Keep safe example files
+!terraform.tfvars.example
+
+# Plan files
+*.plan
+
+# Sensitive keys/certs
+*.pem
+*.key
+*.crt
+
+# IDE/Editor junk
+.vscode/
+.idea/
+.DS_Store
