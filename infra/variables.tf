@@ -177,3 +177,57 @@ variable "db_secret_name" {
   type        = string
   default     = "rds-postgres-credentials"
 }
+
+############################
+# S3 Variables
+############################
+
+variable "storage_bucket_name" {
+  description = "S3 bucket name for Supabase object storage"
+  type        = string
+  default     = "supabase-demo-storage-usw1" # must be globally unique
+}
+
+variable "storage_versioning_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "storage_force_destroy" {
+  description = "Allow destroying non-empty bucket (use with care)"
+  type        = bool
+  default     = false
+}
+
+variable "storage_kms_key_id" {
+  description = "KMS key for bucket encryption; empty uses SSE-S3"
+  type        = string
+  default     = ""
+}
+
+# variable "storage_cors_allowed_origins" {
+#   description = "Allowed origins for browser access (add your Supabase URL)"
+#   type        = list(string)
+#   default     = []
+# }
+
+# variable "storage_cors_allowed_methods" {
+#   type    = list(string)
+#   default = ["GET", "PUT", "POST", "DELETE", "HEAD"]
+# }
+
+# variable "storage_cors_allowed_headers" {
+#   type    = list(string)
+#   default = ["*"]
+# }
+
+# variable "storage_cors_expose_headers" {
+#   type    = list(string)
+#   default = ["etag"]
+# }
+
+variable "storage_lifecycle_expiration_days" {
+  description = "Expire noncurrent versions after N days (0 disables rule)"
+  type        = number
+  default     = 0
+}

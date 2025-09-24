@@ -55,3 +55,15 @@ db_allowed_cidr_blocks    = []
 
 db_create_credentials_secret = true
 db_secret_name              = "rds-postgres-credentials"
+
+
+# S3 for Supabase
+storage_bucket_name               = "supabase-demo-storage-usw1"  # pick a unique name
+storage_versioning_enabled        = true
+storage_force_destroy             = false
+storage_kms_key_id                = ""    # or "arn:aws:kms:us-west-1:123456789012:key/abcd-..."
+# storage_cors_allowed_origins      = ["https://your-supabase-project-url", "http://localhost:3000"]
+# storage_cors_allowed_methods      = ["GET", "PUT", "POST", "DELETE", "HEAD"]
+# storage_cors_allowed_headers      = ["*"]
+# storage_cors_expose_headers       = ["etag"]
+storage_lifecycle_expiration_days = 0
