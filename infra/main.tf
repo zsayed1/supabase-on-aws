@@ -1,13 +1,20 @@
-#######################################
-# Root main.tf – Calls VPC Module
-#######################################
-
 module "vpc" {
   source = "./modules/vpc"
 
   vpc_cidr        = var.vpc_cidr
-  azs             = var.azs
   public_subnets  = var.public_subnets
   private_subnets = var.private_subnets
+  azs             = var.azs
 }
 
+module "eks" {
+  source = "./modules/eks"
+
+  cluster_name       = var.eks_cluster_name
+  private_subnet_ids = module.vpc.private_subnet_ids
+
+  desired_capacity = var.eks_desired_capacity
+  max_capacity     = var.eks_max_capacity
+  min_capacity     = var.eks_min_capacity
+  instance_type    = var.eks_instance_type
+}

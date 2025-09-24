@@ -21,3 +21,12 @@ private_subnets = {
   "us-west-1a" = "10.0.101.0/24"
   "us-west-1c" = "10.0.102.0/24"
 }
+
+
+## EKS cluster vars
+
+eks_cluster_name    = "supabase-eks"
+eks_desired_capacity = 2
+eks_min_capacity     = 1
+eks_max_capacity     = 4
+eks_instance_type    = "t3.medium"

@@ -23,3 +23,29 @@ variable "aws_region" {
   type        = string
   default     = "us-west-1"
 }
+
+# EKS Vars
+variable "eks_cluster_name" {
+  type        = string
+  description = "EKS cluster name"
+}
+
+variable "eks_desired_capacity" {
+  type        = number
+  description = "Desired worker node count"
+}
+
+variable "eks_min_capacity" {
+  type        = number
+  description = "Minimum worker node count"
+}
+
+variable "eks_max_capacity" {
+  type        = number
+  description = "Maximum worker node count"
+}
+
+variable "eks_instance_type" {
+  type        = string
+  description = "EC2 instance type for workers"
+}
