@@ -1,0 +1,14 @@
+name: Jira Ticket Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  jira-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title for Jira ticket
+        run: |
+          echo "🔍 Checking PR title: ${{ github.event.pull_request.title }}"
+          if [[ ! "${{ github.event.pull_request.title }}" =~ https:\/\/your-jira-domain\.atlassian\.net\/browse\/[A-Z]+-[0-9]+ ]];_]()]()
