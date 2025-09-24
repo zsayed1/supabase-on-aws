@@ -1,32 +1,35 @@
-resource "random_password" "jwt_secret" {
-  length  = 32
-  special = false
+variable "db_name" {
+  description = "Name of the Postgres database"
+  type        = string
 }
 
-resource "random_password" "service_role" {
-  length  = 40
-  special = false
+variable "db_username" {
+  description = "Username for the Postgres database"
+  type        = string
 }
 
-resource "random_password" "anon_key" {
-  length  = 40
-  special = false
+variable "db_password" {
+  description = "Generated or provided DB password"
+  type        = string
 }
 
-resource "aws_secretsmanager_secret_version" "supabase" {
-  secret_id     = aws_secretsmanager_secret.supabase.id
-  secret_string = jsonencode({
-    JWT_SECRET       = random_password.jwt_secret.result
-    SERVICE_ROLE_KEY = random_password.service_role.result
-    ANON_KEY         = random_password.anon_key.result
+variable "db_host" {
+  description = "RDS endpoint for Postgres"
+  type        = string
+}
 
-    DB_HOST     = module.rds.db_endpoint
-    DB_PORT     = "5432"
-    DB_NAME     = var.db_name
-    DB_USER     = var.db_username
-    DB_PASSWORD = random_password.db.result
-    STORAGE_BACKEND   = "s3"
-    STORAGE_S3_BUCKET = module.supabase_storage.bucket_name
-    STORAGE_S3_REGION = var.aws_region
-  })
+variable "db_port" {
+  description = "Port for Postgres"
+  type        = number
+  default     = 5432
+}
+
+variable "s3_bucket" {
+  description = "Supabase S3 bucket name"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "AWS region for the deployment"
+  type        = string
 }
