@@ -38,3 +38,9 @@ variable "supabase_secret_arn" {
   description = "ARN of the Supabase secret in Secrets Manager"
   type        = string
 }
+
+variable "enable_ebs_csi_driver" {
+  description = "Whether to enable the EBS CSI driver addon"
+  type        = bool
+  default     = true
+}
