@@ -1,0 +1,85 @@
+# === Secrets ===
+# Pull all env vars from the synced Kubernetes Secret (populated by External Secrets Operator).
+global:
+  envFrom:
+    - secretRef:
+        name: supabase-secrets
+
+# === Service Account (IRSA) ===
+# Create a service account for the chart and annotate with your IRSA role.
+serviceAccount:
+  create: true
+  name: supabase-secrets
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::879381282588:role/supabase-secrets-irsa-role
+
+# === Disable embedded Postgres (we use RDS) ===
+postgresql:
+  enabled: false
+
+# === Resource requests/limits & HPA (examples for key components) ===
+postgrest:
+  resources:
+    requests: { cpu: "200m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 60
+
+realtime:
+  resources:
+    requests: { cpu: "200m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 60
+
+# Optional: tune kong/api, gotrue, storage, etc., similarly
+kong:
+  resources:
+    requests: { cpu: "200m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+
+# === Storage backend (S3) ===
+# These are read by Supabase storage service via env (we already inject via Secrets Manager).
+# Keep here only if the chart expects explicit toggles; secrets still come from env.
+storage:
+  backend: s3
+  s3:
+    # Bucket/region are provided via env from secrets; keep here as hints if chart reads them.
+    bucket: "arn:aws:s3:::supabase-demo-storage-usw1"
+    region: "us-west-1"
+
+# === Persistence (for in-cluster components that use PVCs, not RDS) ===
+# Adjust sizes if you enable/need persistence for specific services in your chart version.
+persistence:
+  enabled: true
+  # Example PVC sizes (used by components that declare PVC templates in the chart)
+  sizes:
+    kong: 2Gi
+    storage: 20Gi
+
+# === Ingress (AWS ALB Ingress Controller) ===
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing        # or "internal"
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'  # simplest path (HTTP)
+    # If you later add TLS, switch to HTTPS 443 + ssl-redirect
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    # alb.ingress.kubernetes.io/ssl-redirect: "443"
+
+  # Fastest path: ALB ignores host matching; it still provisions a DNS name.
+  hosts:
+    - host: "placeholder.local"   # not used by ALB; leave as dummy
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls: []   # Add certs later if you wire ACM/cert-manager
