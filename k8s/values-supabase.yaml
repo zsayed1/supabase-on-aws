@@ -1,0 +1,69 @@
+edge-runtime:
+  image:
+    repository: supabase/edge-runtime
+    tag: v1.47.1
+
+gotrue:
+  image:
+    repository: supabase/gotrue
+    tag: v2.130.3
+
+functions:
+  image:
+    repository: supabase/functions-api
+    tag: v1.18.7
+
+meta:
+  image:
+    repository: supabase/postgres-meta
+    tag: v0.80.1
+
+vector:
+  image:
+    repository: timberio/vector
+    tag: 0.38.0-debian
+
+postgrest:
+  image:
+    repository: postgrest/postgrest
+    tag: v12.2.3
+
+realtime:
+  image:
+    repository: supabase/realtime
+    tag: v2.25.48
+
+storage:
+  image:
+    repository: supabase/storage-api
+    tag: v0.49.4
+
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    size: 20Gi
+
+
+imgproxy:
+  image:
+    repository: darthsim/imgproxy
+    tag: v3.16.0
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    size: 5Gi    
+
+# PVC + autoscaling defaults
+postgrest:
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80

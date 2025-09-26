@@ -1,0 +1,53 @@
+# name: KubeLinter Scan
+
+# on:
+#   pull_request:
+#     branches: [ main ]
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   kube-linter:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: Install kube-linter
+#         run: |
+#           curl -sSL -o kube-linter https://github.com/stackrox/kube-linter/releases/download/0.6.8/kube-linter-linux
+#           chmod +x kube-linter
+#           sudo mv kube-linter /usr/local/bin/
+
+#       - name: Fetch Supabase chart
+#         run: |
+#           git clone https://github.com/supabase-community/supabase-kubernetes.git charts/supabase
+#           helm template supabase ./charts/supabase/charts/supabase \
+#             -n supabase \
+#             -f k8s/values-supabase.yaml > rendered.yaml
+
+
+#       # 🔍 Run kube-linter against rendered Helm templates
+#       - name: Lint Helm chart (supabase)
+#         run: |
+#           helm repo add supabase-community https://supabase-community.github.io/helm-charts
+#           helm repo update
+#           # Render your Helm chart with overrides
+#           helm template supabase supabase-community/supabase \
+#             -n supabase \
+#             -f k8s/values-supabase.yaml > rendered.yaml
+
+#           # Run kube-linter on the rendered YAML
+#           kube-linter lint rendered.yaml || true
+
+#       # 🚦 Fail if CRITICAL findings are present
+#       - name: Check for critical issues only
+#         run: |
+#           set -e
+#           kube-linter lint rendered.yaml --format=json > results.json || true
+#           if jq -e '.Reports[] | select(.Severity=="error")' results.json > /dev/null; then
+#             echo "❌ Critical KubeLinter findings detected."
+#             exit 1
+#           else
+#             echo "✅ No critical issues found."
+#           fi

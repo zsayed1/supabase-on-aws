@@ -31,9 +31,11 @@ resource "aws_subnet" "private" {
   cidr_block        = each.value
   availability_zone = each.key
 
-  tags = {
-    Name = "private-${each.key}"
-  }
+tags = {
+      Name = "private-${each.key}"
+      "kubernetes.io/role/internal-elb"                = "1"
+      "kubernetes.io/cluster/${var.cluster_name}"      = "shared"
+    }
 }
 
 # Creating IGW

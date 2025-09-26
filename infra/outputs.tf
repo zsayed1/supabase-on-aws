@@ -26,3 +26,7 @@ output "supabase_storage_bucket_arn" {
   value = module.supabase_storage.bucket_arn
 }
 
+output "supabase_secrets_irsa_role_arn" {
+  description = "IAM role ARN for Supabase secrets access"
+  value       = module.eks.supabase_secrets_irsa_role_arn
+}
