@@ -1,12 +1,3 @@
-# Get cluster info (needed for Kubernetes provider)
-data "aws_eks_cluster" "this" {
-  name = aws_eks_cluster.this.name
-}
-
-data "aws_eks_cluster_auth" "this" {
-  name = aws_eks_cluster.this.name
-}
-
 # Kubernetes provider (to talk to the new cluster)
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.this.endpoint
