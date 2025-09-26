@@ -30,23 +30,19 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
+  version  = "1.33" 
 
-  # tfsec:ignore:aws-eks-no-public-cluster-access
   vpc_config {
-    # Keep worker nodes in private subnets
-    subnet_ids              = var.private_subnet_ids
-
-    endpoint_public_access  = true
-    endpoint_private_access = false
-
-    public_access_cidrs     = var.eks_api_allowed_cidrs
+    subnet_ids               = var.private_subnet_ids
+    endpoint_public_access   = true
+    endpoint_private_access  = false
+    public_access_cidrs      = var.eks_api_allowed_cidrs
   }
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy
   ]
 }
-
 
 ##########################
 # IAM Role for Worker Nodes
@@ -84,6 +80,8 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryR
 ##########################
 # Node Group
 ##########################
+
+
 resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${var.cluster_name}-node-group"
@@ -97,19 +95,15 @@ resource "aws_eks_node_group" "this" {
   }
 
   instance_types = [var.instance_type]
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.eks_nodes_AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly
-  ]
+  ami_type       = "AL2023_x86_64_STANDARD" 
 }
+
 
 
 ## IRSA Setup
-data "aws_eks_cluster" "this" {
-  name = aws_eks_cluster.this.name
-}
+# data "aws_eks_cluster" "this" {
+#   name = aws_eks_cluster.this.name
+# }
 
 # Fetch the EKS OIDC issuer URL
 locals {
@@ -169,17 +163,6 @@ resource "aws_iam_role_policy_attachment" "supabase_secrets_attach" {
   policy_arn = aws_iam_policy.supabase_secrets.arn
 }
 
-# Add EBS CSI driver addon
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name            = aws_eks_cluster.this.name
-  addon_name              = "aws-ebs-csi-driver"
-  addon_version           = "v1.29.0-eksbuild.1" # check AWS docs for latest in your region
-  resolve_conflicts       = "OVERWRITE"
-  service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
-
-  depends_on = [aws_eks_node_group.this]
-}
-
 # IAM role for EBS CSI driver
 resource "aws_iam_role" "ebs_csi_driver" {
   name = "${var.cluster_name}-ebs-csi-driver-role"
@@ -205,10 +188,8 @@ resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
-  count                   = var.enable_ebs_csi_driver ? 1 : 0
-  cluster_name            = aws_eks_cluster.this.name
-  addon_name              = "aws-ebs-csi-driver"
-  addon_version           = "v1.29.0-eksbuild.1"
-  resolve_conflicts       = "OVERWRITE"
-  service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
+  cluster_name              = aws_eks_cluster.this.name
+  addon_name                = "aws-ebs-csi-driver"
+  resolve_conflicts         = "OVERWRITE"
+  service_account_role_arn  = aws_iam_role.ebs_csi_driver.arn
 }

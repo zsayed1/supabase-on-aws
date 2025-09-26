@@ -41,13 +41,17 @@ storage:
   persistence:
     enabled: true
     storageClassName: gp2
-    size: 10Gi
+    size: 20Gi
 
 
 imgproxy:
   image:
     repository: darthsim/imgproxy
     tag: v3.16.0
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    size: 5Gi    
 
 # PVC + autoscaling defaults
 postgrest:
