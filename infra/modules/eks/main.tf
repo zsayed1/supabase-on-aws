@@ -106,11 +106,6 @@ resource "aws_eks_node_group" "this" {
 }
 
 
-## IRSA Setup
-data "aws_eks_cluster" "this" {
-  name = aws_eks_cluster.this.name
-}
-
 # Fetch the EKS OIDC issuer URL
 locals {
   eks_oidc_url = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
