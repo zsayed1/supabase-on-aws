@@ -5,6 +5,7 @@ module "vpc" {
   public_subnets  = var.public_subnets
   private_subnets = var.private_subnets
   azs             = var.azs
+  cluster_name      = var.eks_cluster_name 
 }
 
 module "eks" {

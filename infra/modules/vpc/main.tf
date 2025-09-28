@@ -18,9 +18,11 @@ resource "aws_subnet" "public" {
   availability_zone       = each.key
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "public-${each.key}"
-  }
+tags = {
+  Name = "public-${each.key}"
+  "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  "kubernetes.io/role/elb"                    = 1
+}
 }
 
 # Private Subnets
@@ -31,9 +33,14 @@ resource "aws_subnet" "private" {
   cidr_block        = each.value
   availability_zone = each.key
 
+  # tags = {
+  #   Name = "private-${each.key}"
+  # }
   tags = {
-    Name = "private-${each.key}"
-  }
+  Name = "private-${each.key}"
+  "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  "kubernetes.io/role/internal-elb"           = 1
+}
 }
 
 # Creating IGW

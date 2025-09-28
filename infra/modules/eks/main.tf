@@ -30,17 +30,14 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
-
+     version  = "1.32"
   # tfsec:ignore:aws-eks-no-public-cluster-access
-  vpc_config {
-    # Keep worker nodes in private subnets
-    subnet_ids              = var.private_subnet_ids
-
-    endpoint_public_access  = true
-    endpoint_private_access = false
-
-    public_access_cidrs     = var.eks_api_allowed_cidrs
-  }
+ vpc_config {
+  subnet_ids              = var.private_subnet_ids
+  endpoint_public_access  = true
+  endpoint_private_access = true
+  public_access_cidrs     = var.eks_api_allowed_cidrs
+}
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy
@@ -81,6 +78,11 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryR
   role       = aws_iam_role.eks_nodes.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks_nodes_ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.eks_nodes.name
+}
+
 ##########################
 # Node Group
 ##########################
@@ -101,15 +103,11 @@ resource "aws_eks_node_group" "this" {
   depends_on = [
     aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.eks_nodes_AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.eks_nodes_ssm
   ]
 }
 
-
-## IRSA Setup
-data "aws_eks_cluster" "this" {
-  name = aws_eks_cluster.this.name
-}
 
 # Fetch the EKS OIDC issuer URL
 locals {
