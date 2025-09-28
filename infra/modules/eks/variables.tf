@@ -47,6 +47,7 @@ variable "enable_ebs_csi_driver" {
 
 variable "eks_version" {
   type        = string
+
   description = "EKS version to use for worker AMIs"
   default     = "1.31"
 }
