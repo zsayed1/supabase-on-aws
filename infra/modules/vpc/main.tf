@@ -18,10 +18,10 @@ resource "aws_subnet" "public" {
   availability_zone       = each.key
   map_public_ip_on_launch = true
 
-  tags = {
-  Name = "private-${each.key}"
+tags = {
+  Name = "public-${each.key}"
   "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-  "kubernetes.io/role/internal-elb"           = 1
+  "kubernetes.io/role/elb"                    = 1
 }
 }
 
