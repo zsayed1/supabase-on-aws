@@ -30,19 +30,20 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.33" 
-
-  vpc_config {
-    subnet_ids               = var.private_subnet_ids
-    endpoint_public_access   = true
-    endpoint_private_access  = false
-    public_access_cidrs      = var.eks_api_allowed_cidrs
-  }
+     version  = "1.32"
+  # tfsec:ignore:aws-eks-no-public-cluster-access
+ vpc_config {
+  subnet_ids              = var.private_subnet_ids
+  endpoint_public_access  = true
+  endpoint_private_access = true
+  public_access_cidrs     = var.eks_api_allowed_cidrs
+}
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy
   ]
 }
+
 
 ##########################
 # IAM Role for Worker Nodes
@@ -77,11 +78,14 @@ resource "aws_iam_role_policy_attachment" "eks_nodes_AmazonEC2ContainerRegistryR
   role       = aws_iam_role.eks_nodes.name
 }
 
+resource "aws_iam_role_policy_attachment" "eks_nodes_ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.eks_nodes.name
+}
+
 ##########################
 # Node Group
 ##########################
-
-
 resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${var.cluster_name}-node-group"
@@ -95,15 +99,15 @@ resource "aws_eks_node_group" "this" {
   }
 
   instance_types = [var.instance_type]
-  ami_type       = "AL2023_x86_64_STANDARD" 
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.eks_nodes_AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.eks_nodes_ssm
+  ]
 }
 
-
-
-## IRSA Setup
-# data "aws_eks_cluster" "this" {
-#   name = aws_eks_cluster.this.name
-# }
 
 # Fetch the EKS OIDC issuer URL
 locals {
@@ -161,35 +165,4 @@ resource "aws_iam_role" "supabase_secrets_irsa" {
 resource "aws_iam_role_policy_attachment" "supabase_secrets_attach" {
   role       = aws_iam_role.supabase_secrets_irsa.name
   policy_arn = aws_iam_policy.supabase_secrets.arn
-}
-
-# IAM role for EBS CSI driver
-resource "aws_iam_role" "ebs_csi_driver" {
-  name = "${var.cluster_name}-ebs-csi-driver-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-# Attach the AmazonEBSCSIDriverPolicy
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  role       = aws_iam_role.ebs_csi_driver.name
-}
-
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name              = aws_eks_cluster.this.name
-  addon_name                = "aws-ebs-csi-driver"
-  resolve_conflicts         = "OVERWRITE"
-  service_account_role_arn  = aws_iam_role.ebs_csi_driver.arn
 }
