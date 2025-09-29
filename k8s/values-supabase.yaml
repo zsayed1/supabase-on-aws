@@ -37,10 +37,11 @@ storage:
   image:
     repository: supabase/storage-api
     tag: v0.49.4
+     
 
   persistence:
     enabled: true
-    storageClassName: gp2
+    storageClassName: gp3-csi
     size: 20Gi
 
 
@@ -50,7 +51,7 @@ imgproxy:
     tag: v3.16.0
   persistence:
     enabled: true
-    storageClassName: gp2
+    storageClassName: gp3-csi
     size: 5Gi    
 
 # PVC + autoscaling defaults
@@ -67,3 +68,7 @@ postgrest:
     minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
+
+envFrom:
+  - secretRef:
+      name: supabase-secrets

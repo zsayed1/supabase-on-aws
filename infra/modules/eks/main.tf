@@ -166,3 +166,58 @@ resource "aws_iam_role_policy_attachment" "supabase_secrets_attach" {
   role       = aws_iam_role.supabase_secrets_irsa.name
   policy_arn = aws_iam_policy.supabase_secrets.arn
 }
+
+resource "aws_iam_role" "ebs_csi_driver_irsa" {
+  name = "${var.cluster_name}-ebs-csi-driver-irsa"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver_attach" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = aws_iam_role.ebs_csi_driver_irsa.name
+}
+
+
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name             = aws_eks_cluster.this.name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.30.0-eksbuild.1" # Adjust for your k8s version
+  resolve_conflicts        = "OVERWRITE"
+  service_account_role_arn = aws_iam_role.ebs_csi_driver_irsa.arn
+}
+
+
+resource "kubernetes_storage_class" "gp3" {
+  metadata {
+    name = "gp3-csi"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  provisioner          = "ebs.csi.aws.com"
+  volume_binding_mode  = "WaitForFirstConsumer"
+  reclaim_policy       = "Delete"
+  allow_volume_expansion = true
+
+  parameters = {
+    type = "gp3"
+  }
+}
