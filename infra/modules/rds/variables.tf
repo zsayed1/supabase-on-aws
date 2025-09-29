@@ -111,7 +111,7 @@ variable "create_credentials_secret" {
 variable "secret_name" {
   description = "Name of the AWS Secrets Manager secret if created"
   type        = string
-  default     = "rds-postgres-credentials"
+  default     = "rds-postgres-credentials0"
 }
 
 variable "db_port" {

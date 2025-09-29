@@ -54,7 +54,7 @@ db_kms_key_id             = ""            # use default AWS-managed key
 db_allowed_cidr_blocks    = []
 
 db_create_credentials_secret = true
-db_secret_name              = "rds-postgres-credentials"
+db_secret_name              = "rds-postgres-credentials0"
 
 
 # S3 for Supabase
